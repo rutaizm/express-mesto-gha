@@ -4,12 +4,13 @@ const mongoose = require('mongoose');
 
 const app = express();
 const routesUsers = require('./routes/users');
+const routesCards = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(bodyParser.json());
-app.use('/users', routesUsers);
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   req.user = {
@@ -18,5 +19,7 @@ app.use((req, res, next) => {
 
   next();
 });
+app.use('/users', routesUsers);
+app.use('/cards', routesCards);
 
 app.listen(PORT);

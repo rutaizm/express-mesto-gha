@@ -4,8 +4,8 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Поле {PATH} не может быть пустым.'],
-    minlength: [2, 'Поле {PATH} должно содержать минимум два символа.'],
-    maxlength: [30, 'Поле {PATH} может быть максимум 30 символов.'],
+    minlength: [2, 'Поле {PATH} должно содержать минимум 2 символа.'],
+    maxlength: [30, 'Поле {PATH} должно содержать максимум 30 символов.'],
   },
   link: {
     type: String,
