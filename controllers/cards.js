@@ -3,14 +3,15 @@ const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/erro
 
 const getCard = (req, res) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((card) => res.send(card))
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
 }
 
-const createCard = (res, req) => {
+const createCard = (req, res) => {
   const { name, link } = req.body;
-  // const { owner } = req.user._id;
-  Card.create({ name, link })
+  const { owner } = req.user._id;
+  Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -38,6 +39,7 @@ const setCardLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
+    .populate(['owner', 'likes'])
     .then((card) => res.send(card))
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
 }
@@ -47,6 +49,7 @@ const removeCardLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
+    .populate(['owner', 'likes'])
     .then((card) => res.send(card))
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
 }
