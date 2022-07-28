@@ -17,5 +17,6 @@ module.exports = {
     'eol-last': 0,
     'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
     semi: 'off',
+    'object-curly-newline': ['error', { consistent: true }],
   },
 };
