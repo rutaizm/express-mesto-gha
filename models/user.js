@@ -17,6 +17,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Поле {PATH} не может быть пустым.'],
   },
-});
+}, { versionKey: false });
 
 module.exports = mongoose.model('user', userSchema);
