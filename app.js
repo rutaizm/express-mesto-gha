@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { NOT_FOUND } = require('./utils/errors');
 
 const app = express();
 const routesUsers = require('./routes/users');
@@ -20,5 +21,9 @@ app.use((req, res, next) => {
 });
 app.use('/users', routesUsers);
 app.use('/cards', routesCard);
+
+app.use((req, res) => {
+  res.status(NOT_FOUND).send({ message: 'Страница не найдена' })
+})
 
 app.listen(PORT);
