@@ -1,9 +1,10 @@
 const Card = require('../models/card');
+const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/errors');
 
 const getCard = (req, res) => {
   Card.find({})
     .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }))
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
 }
 
 const createCard = (res, req) => {
@@ -11,13 +12,25 @@ const createCard = (res, req) => {
   const { owner } = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST).send({ message: 'Неверный запрос' });
+        return
+      }
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' })
+    })
 }
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params._id)
-    .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }))
+    .then((card) => {
+      if (!card) {
+        res.status(NOT_FOUND).send({ message: 'Фотография не найдена' });
+        return
+      }
+      res.send(card);
+    })
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
 }
 
 const setCardLike = (req, res) => {
@@ -26,7 +39,7 @@ const setCardLike = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }))
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
 }
 
 const removeCardLike = (req, res) => {
@@ -35,7 +48,7 @@ const removeCardLike = (req, res) => {
     { new: true },
   )
     .then((card) => res.send(card))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }))
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
 }
 
 module.exports = { getCard, createCard, deleteCard, setCardLike, removeCardLike };
