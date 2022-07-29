@@ -23,7 +23,7 @@ app.use('/users', routesUsers);
 app.use('/cards', routesCard);
 
 app.use((req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страница не найдена' })
-})
+  res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
+});
 
 app.listen(PORT);

@@ -4,7 +4,7 @@ const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/erro
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }))
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
 };
 
 const getUser = (req, res) => {
@@ -20,27 +20,28 @@ const createUser = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Неверный запрос' });
-        return
+        return;
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' })
-    })
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
 };
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
+  // eslint-disable-next-line function-paren-newline
   User.findByIdAndUpdate(req.user._id,
     { name, about },
-    { new: true, runValidators: true, upsert: true }
-)
+    { new: true, runValidators: true, upsert: true },
+  )
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Неверный запрос' });
-        return
+        return;
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' })
-    })
-}
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
+};
 
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
@@ -49,10 +50,12 @@ const updateUserAvatar = (req, res) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Неверный запрос' });
-        return
+        return;
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' })
-    })
-}
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
+};
 
-module.exports = { getUsers, getUser, createUser, updateUser, updateUserAvatar };
+module.exports = {
+  getUsers, getUser, createUser, updateUser, updateUserAvatar,
+};
