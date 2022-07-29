@@ -9,8 +9,20 @@ const getUsers = (req, res) => {
 
 const getUser = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send(user))
-    .catch(() => res.status(NOT_FOUND).send({ message: 'Пользователь не найден' }));
+    .then((user) => {
+      if (!user) {
+        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+        return;
+      }
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Передан некоректный ID пользователя' });
+        return;
+      }
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
 };
 
 const createUser = (req, res) => {

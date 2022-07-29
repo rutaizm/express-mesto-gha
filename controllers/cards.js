@@ -41,8 +41,20 @@ const setCardLike = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then((card) => res.send(card))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
+    .then((card) => {
+      if (!card) {
+        res.status(NOT_FOUND).send({ message: 'Фотография не найдена' });
+        return;
+      }
+      res.send(card);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return;
+      }
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
 };
 
 const removeCardLike = (req, res) => {
@@ -52,8 +64,20 @@ const removeCardLike = (req, res) => {
     { new: true },
   )
     .populate(['owner', 'likes'])
-    .then((card) => res.send(card))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
+    .then((card) => {
+      if (!card) {
+        res.status(NOT_FOUND).send({ message: 'Фотография не найдена' });
+        return;
+      }
+      res.send(card);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return;
+      }
+      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
 };
 
 module.exports = {
