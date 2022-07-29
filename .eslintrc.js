@@ -9,6 +9,9 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest',
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
   },
   rules: {
     'no-underscore-dangle': ['error', {
