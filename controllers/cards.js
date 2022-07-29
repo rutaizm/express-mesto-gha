@@ -23,7 +23,7 @@ const createCard = (req, res) => {
 }
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params._id)
+  Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
         res.status(NOT_FOUND).send({ message: 'Фотография не найдена' });
