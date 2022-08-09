@@ -1,5 +1,14 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/errors');
+const {
+  BAD_REQUEST,
+  NOT_FOUND,
+  INTERNAL_SERVER_ERROR,
+  AUTH_ERROR,
+} = require('../utils/errors');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const getUsers = (req, res) => {
   User.find({})
@@ -26,8 +35,17 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    }))
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -35,6 +53,22 @@ const createUser = (req, res) => {
         return;
       }
       res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+    });
+};
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials({ email, password })
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' },
+      );
+      res.send({ token });
+    })
+    .catch(() => {
+      res.status(AUTH_ERROR).send({ message: 'Неверный пользователь или пароль' });
     });
 };
 
@@ -69,5 +103,5 @@ const updateUserAvatar = (req, res) => {
 };
 
 module.exports = {
-  getUsers, getUser, createUser, updateUser, updateUserAvatar,
+  getUsers, getUser, createUser, updateUser, updateUserAvatar, login,
 };
