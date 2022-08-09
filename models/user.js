@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: (email) => validator.isEmail(email),
-      message: {'Неверно указана почта.'},
+      message: 'Неверно указана почта.',
     },
   },
   password: {
@@ -18,19 +18,19 @@ const userSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    required: [true, 'Поле {PATH} не может быть пустым.'],
     minlength: [2, 'Поле {PATH} должно содержать минимум 2 символа.'],
     maxlength: [30, 'Поле {PATH} должно содержать максимум 30 символов.'],
+    default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
-    required: [true, 'Поле {PATH} не может быть пустым.'],
     minlength: [2, 'Поле {PATH} должно содержать минимум 2 символа.'],
     maxlength: [30, 'Поле {PATH} должно содержать максимум 30 символов.'],
+    default: 'Исследователь',
   },
   avatar: {
     type: String,
-    required: [true, 'Поле {PATH} не может быть пустым.'],
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
 }, { versionKey: false });
 
