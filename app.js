@@ -19,6 +19,12 @@ app.use((req, res, next) => {
   };
   next();
 });
+
+const { login, createUser } = require('./controllers/users');
+
+app.post('/signin', login);
+app.post('/signup', createUser);
+
 app.use('/users', routesUsers);
 app.use('/cards', routesCard);
 
