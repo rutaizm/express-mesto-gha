@@ -52,13 +52,19 @@ const createUser = (req, res) => {
         res.status(BAD_REQUEST).send({ message: 'Неверный запрос' });
         return;
       }
+
+      if (err.code === 11000) {
+        res.status(BAD_REQUEST).send({ message: 'Такой пользователь уже существует!' });
+        return;
+      }
+
       res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
     });
 };
 
 const login = (req, res) => {
-  const { email, password } = req.body;
-  User.findUserByCredentials({ email, password })
+  const { email } = req.body;
+  User.findOne({ email }).select('+password')
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
@@ -102,6 +108,20 @@ const updateUserAvatar = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res, next) => {
+  const id = req.user._id;
+
+  User.findById(id)
+    .then((user) => {
+      if (!user) {
+        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+        return;
+      }
+      res.send(user);
+    })
+    .catch(next);
+};
+
 module.exports = {
-  getUsers, getUser, createUser, updateUser, updateUserAvatar, login,
+  getUsers, getUser, createUser, updateUser, updateUserAvatar, login, getCurrentUser,
 };

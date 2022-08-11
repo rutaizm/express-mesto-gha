@@ -7,7 +7,9 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Необходимо указать почту.'],
     unique: true,
     validate: {
-      validator: (email) => validator.isEmail(email),
+      validator(email) {
+        return validator.isEmail(email);
+      },
       message: 'Неверно указана почта.',
     },
   },
