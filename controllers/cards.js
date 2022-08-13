@@ -1,46 +1,48 @@
 const Card = require('../models/card');
-const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/errors');
+const BadRequest = require('../utils/BadRequest');
+const NotFound = require('../utils/NotFound');
+const Forbidden = require('../utils/Forbidden');
 
-const getCard = (req, res) => {
+const getCard = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((card) => res.send(card))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' }));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const { owner } = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Неверный запрос' });
-        return;
+        return next(new BadRequest('Неверный запрос'));
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+      return next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(NOT_FOUND).send({ message: 'Фотография не найдена' });
-        return;
+        next(new NotFound('Фотография не найдена'));
+      }
+      if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
+        next(new Forbidden('Вы не можете удалить фотографию, созданную другим пользователем!'));
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-        return;
+        return next(new BadRequest('Неверный запрос'));
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+      return next(err);
     });
 };
 
-const setCardLike = (req, res) => {
+const setCardLike = (req, res, next) => {
   // eslint-disable-next-line function-paren-newline
   Card.findByIdAndUpdate(req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -49,21 +51,19 @@ const setCardLike = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        res.status(NOT_FOUND).send({ message: 'Фотография не найдена' });
-        return;
+        next(new NotFound('Фотография не найдена'));
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-        return;
+        return next(new BadRequest('Неверный запрос'));
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+      return next(err);
     });
 };
 
-const removeCardLike = (req, res) => {
+const removeCardLike = (req, res, next) => {
   // eslint-disable-next-line function-paren-newline
   Card.findByIdAndUpdate(req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -72,17 +72,15 @@ const removeCardLike = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
-        res.status(NOT_FOUND).send({ message: 'Фотография не найдена' });
-        return;
+        next(new NotFound('Фотография не найдена'));
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-        return;
+        return next(new BadRequest('Неверный запрос'));
       }
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Внутренняя ошибка сервера' });
+      return next(err);
     });
 };
 
