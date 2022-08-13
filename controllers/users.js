@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
+
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const BadRequest = require('../utils/BadRequest');
@@ -20,12 +20,13 @@ const getUser = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь не найден'));
+        return;
       }
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequest('Неверный запрос'));
+        return next(new BadRequest('Неверный запрос!'));
       }
       return next(err);
     });
@@ -67,6 +68,10 @@ const login = (req, res, next) => {
   const { email } = req.body;
   User.findOne({ email }).select('+password')
     .then((user) => {
+      if (!user) {
+        next(new Auth('Неверная почта или пароль'));
+        return;
+      }
       const token = jwt.sign(
         { _id: user._id },
         JWT_SECRET,
@@ -75,7 +80,7 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      next(new Auth('Неверная почта или пароль'));
+      next(new Auth('Неправильная почта или пароль'));
     });
 };
 
@@ -89,6 +94,7 @@ const updateUser = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь не найден'));
+        return;
       }
       res.send(user);
     })
@@ -106,6 +112,7 @@ const updateUserAvatar = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь не найден'));
+        return;
       }
       res.send(user);
     })
@@ -124,6 +131,7 @@ const getCurrentUser = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь не найден'));
+        return;
       }
       res.send(user);
     })

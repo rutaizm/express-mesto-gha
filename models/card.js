@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema({
   link: {
     type: String,
     required: [true, 'Поле {PATH} не может быть пустым.'],
+    validate: {
+      validator(v) {
+        return /^(https?:\/\/)?([\da-z.-]+).([a-z.]{2,6})([/\w.-]*)*\/?$/g.test(v);
+      },
+      message: 'Неверный URL.',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

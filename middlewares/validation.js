@@ -17,9 +17,16 @@ const validationSignIn = celebrate({
   }),
 });
 
+function validateAnyId(id, helpers) {
+  if (/^[a-f\d]{24}$/i.test(id)) {
+    return id;
+  }
+  return helpers.error;
+}
+
 const validationUserId = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24),
+    userId: Joi.string().custom(validateAnyId),
   }),
 });
 
@@ -45,7 +52,7 @@ const validationCreateCard = celebrate({
 
 const validationCardId = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().alphanum().length(24),
+    cardId: Joi.string().custom(validateAnyId),
   }),
 });
 

@@ -11,12 +11,11 @@ const getCard = (req, res, next) => {
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const { owner } = req.user._id;
-  Card.create({ name, link, owner })
+  Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequest('Неверный запрос'));
+        return next(new BadRequest('Неверный запрос!'));
       }
       return next(err);
     });
@@ -27,7 +26,11 @@ const deleteCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         next(new NotFound('Фотография не найдена'));
+        return;
       }
+      res.send(card);
+    })
+    .then((card) => {
       if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
         next(new BadRequest('Вы не можете удалить фотографию, созданную другим пользователем!'));
       }
@@ -51,6 +54,7 @@ const setCardLike = (req, res, next) => {
     .then((card) => {
       if (!card) {
         next(new NotFound('Фотография не найдена'));
+        return;
       }
       res.send(card);
     })
@@ -72,6 +76,7 @@ const removeCardLike = (req, res, next) => {
     .then((card) => {
       if (!card) {
         next(new NotFound('Фотография не найдена'));
+        return;
       }
       res.send(card);
     })

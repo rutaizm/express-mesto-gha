@@ -1,8 +1,9 @@
 const express = require('express');
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
-const { NOT_FOUND } = require('./utils/errors');
+const NotFound = require('./utils/NotFound');
 const { errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -27,8 +28,8 @@ app.use(auth);
 app.use('/users', routesUsers);
 app.use('/cards', routesCard);
 
-app.use((req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страница не найдена' });
+app.use((req, res, next) => {
+  next(new NotFound('Страница не найдена'));
 });
 
 app.use(errors());
