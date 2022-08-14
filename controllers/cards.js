@@ -22,19 +22,17 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         next(new NotFound('Фотография не найдена'));
         return;
       }
-      res.send(card);
-    })
-    .then((card) => {
       if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
         next(new BadRequest('Вы не можете удалить фотографию, созданную другим пользователем!'));
+      } else {
+        card.remove();
       }
-      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

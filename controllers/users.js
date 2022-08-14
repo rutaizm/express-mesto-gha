@@ -5,7 +5,6 @@ const User = require('../models/user');
 const BadRequest = require('../utils/BadRequest');
 const NotFound = require('../utils/NotFound');
 const Conflict = require('../utils/Conflict');
-const Auth = require('../utils/Auth');
 
 const { JWT_SECRET = 'some-secret-key' } = process.env;
 
@@ -16,7 +15,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.params.userId)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь не найден'));
@@ -65,13 +64,10 @@ const createUser = (req, res, next) => {
 };
 
 const login = (req, res, next) => {
-  const { email } = req.body;
-  User.findOne({ email }).select('+password')
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        next(new Auth('Неверная почта или пароль'));
-        return;
-      }
       const token = jwt.sign(
         { _id: user._id },
         JWT_SECRET,
@@ -79,9 +75,7 @@ const login = (req, res, next) => {
       );
       res.send({ token });
     })
-    .catch(() => {
-      next(new Auth('Неправильная почта или пароль'));
-    });
+    .catch(next);
 };
 
 const updateUser = (req, res, next) => {
