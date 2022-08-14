@@ -31,7 +31,9 @@ const deleteCard = (req, res, next) => {
       if (JSON.stringify(card.owner) !== JSON.stringify(req.user._id)) {
         next(new BadRequest('Вы не можете удалить фотографию, созданную другим пользователем!'));
       } else {
-        card.remove();
+        card.remove()
+          .then(() => res.send({ message: 'Фотография удалена' }))
+          .catch(next);
       }
     })
     .catch((err) => {
